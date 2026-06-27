@@ -17,7 +17,7 @@ char *read_line(){
     int size = MAX_SIZE;
     char *buffer = malloc(size * sizeof(char));
     if(!buffer){
-        fprintf(stderr, "Allocation failed\n");
+        write(STDERR_FILENO,"Allocation failed\n",strlen("Allocation failed\n"));
         exit(EXIT_FAILURE);
     }
 
@@ -30,7 +30,7 @@ char *read_line(){
             size += MAX_SIZE;
             buffer = realloc(buffer, size * sizeof(char));
             if(!buffer){
-                fprintf(stderr, "Reallocation failed in read_line func\n");
+                write(STDERR_FILENO,"Reallocation failed in read_line func\n",strlen("Reallocation failed in read_line func\n"));
                 exit(EXIT_FAILURE);
             }
             //buffer[i++] = ch; dont need this
@@ -57,7 +57,7 @@ char **split_line(char *line){
     char *token;
 
     if(!tokens){
-        fprintf(stderr, "Allocation failed in split_line()\n");
+        write(STDERR_FILENO,"Allocation failed in split_line()\n",strlen("Allocation failed in split_line()\n"));
         exit(EXIT_FAILURE);
     }
     
@@ -71,7 +71,7 @@ char **split_line(char *line){
             tokens = realloc(tokens, bufsize * sizeof(char *));
             
             if(!tokens){
-                fprintf(stderr, "Reallocation failed in split_line()\n");
+                write(STDERR_FILENO,"Reallocation failed in split_line()\n",strlen("Reallocation failed in split_line()\n"));
                 exit(EXIT_FAILURE);
             }
         }
@@ -144,11 +144,11 @@ void write_hist(char *args){
     char *home = getenv("HOME");
     // snprintf is like printf but writes to a string instead of stdout 
     char filepath[1024];
-    snprintf(filepath, sizeof(filepath), "%s/shell_c/.history.txt", home);
+   snprintf(filepath, sizeof(filepath), "%s/.myshell_history", home);
     FILE *file_io = fopen(filepath, "a");
 
     if(!file_io){
-        fprintf(stderr, "Error in write_hist()\n");
+        write(STDERR_FILENO,"Error in write_hist()\n",strlen("Error in write_hist()\n"));
         exit(EXIT_FAILURE);
     }
     fprintf(file_io, "%s\n", args);
@@ -221,17 +221,15 @@ int main(int argc, char **argv){
 int sh_cd(char **args){
     //chdir(args[1]);
     if(args[1] == NULL){
-        fprintf(stderr, "sh_cd: Expected arguement to cd into\n");
+        write(STDERR_FILENO,"sh_cd: Expected arguement to cd into\n",strlen("sh_cd: Expected arguement to cd into\n"));
 
     }
     else if(chdir(args[1]) != 0){
-        fprintf(stderr, "Invalid directory or does not exist.\n");
+        write(STDERR_FILENO,"Invalid directory or does not exist.\n",strlen("Invalid directory or does not exist.\n"));
         return 1;
     }
     else{
         printf("Moved to %s \n", args[1]);
-
-
     }
         
     
@@ -240,30 +238,33 @@ int sh_cd(char **args){
 
 int sh_cwd(char **args){
     char buffer[1024];
+    char temp_buffer[1024];
 
     if(getcwd(buffer, sizeof(buffer)) != NULL){
-        printf("The current dir is: %s\n", buffer);
+
+        snprintf(temp_buffer,sizeof(temp_buffer),"The current dir is: %s\n",buffer);
+        write(STDOUT_FILENO,temp_buffer,strlen(temp_buffer));
     }
     else{
         perror("error happend in sh_cwd()\n");
         return 1;
     }
-    return 1;
+    return 0;
 }
 
+// wait
+
 int sh_help(char **args){
+    char* helpMessage="****************************************\nAram's experimental shell\n****************************************\nThe following are built in: \n";
     int i;
-    printf("****************************************\n");
-    printf("Aram's experimental shell\n");
-    printf("The following are built in: \n");
+ 
+    write(STDOUT_FILENO,helpMessage,strlen(helpMessage));
 
     for(int i = 0; i < sh_num_built_ins(); i++){
         printf(" %s\n", builtin_str[i]);
     }
 
-    printf("****************************************\n");
-
-
+  
     return 1;
 
 
@@ -292,7 +293,7 @@ int sh_dir(char **args){
 int history(char **args){
     char *home = getenv("HOME");
     char filepath[1024];
-    snprintf(filepath, sizeof(filepath), "%s/shell_c/.history.txt", home);
+  snprintf(filepath, sizeof(filepath), "%s/.myshell_history", home);
     FILE *file_read = fopen(filepath, "r");
     char buffer[255];
 
@@ -312,7 +313,7 @@ int cat_file(char **args){
     struct stat file_stat;
 
     if(args[1] == NULL){
-        fprintf(stderr, "No argument provided\n");
+        write(STDERR_FILENO,"No argument provided\n",strlen("No argument provided\n"));
         return 1;
     }
     
@@ -328,7 +329,7 @@ int cat_file(char **args){
     while((fgets(buffer, sizeof(buffer), file_ptr)) != NULL){
         printf("%s", buffer);
     }
-    printf("\n");
+    write(STDOUT_FILENO,"\n",1);
     return 1;
 
         
@@ -336,6 +337,6 @@ int cat_file(char **args){
     
 
 int sh_exit(char **args){
-    printf("Goodbye\n");
+    write(STDERR_FILENO,"goodbye\n",8);
     return 0;
 }
