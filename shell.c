@@ -255,7 +255,7 @@ int sh_cwd(char **args){
 // wait
 
 int sh_help(char **args){
-    char* helpMessage="****************************************\nAram's experimental shell\n****************************************\nThe following are built in: \n";
+    char* helpMessage="****************************************\nAram's and mohammed experimental shell\n****************************************\nThe following are built in: \n";
     int i;
  
     write(STDOUT_FILENO,helpMessage,strlen(helpMessage));
