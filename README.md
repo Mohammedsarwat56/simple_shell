@@ -1,7 +1,10 @@
 # Simple Shell
 
-This is a simple shell i wrote with c
+This is a simple shell we wrote with c
 
-compile it and run with 'gcc -o shell shell.c'  and './shell'
+this project uses makefile to compile and run the source code
+compile it using "make" in the terminal 
+
+run it by typing "make run"
 
 type help to see the list of built in functions 
